@@ -1,0 +1,70 @@
+{
+  "sdxl-sheet-animagine": {
+    "kind": "sdxl_checkpoint",
+    "checkpoint": "animagine-xl-4.0-opt.safetensors",
+    "workflow": "workflows/katala_prompt_nova_sdxl_api.json",
+    "preset": "production-sheet",
+    "width": 1344,
+    "height": 896,
+    "steps": 24,
+    "cfg": 6.2,
+    "notes": "制作シート第一候補。白背景、設定画、色分離が良好。"
+  },
+  "sdxl-sheet-nova": {
+    "kind": "sdxl_checkpoint",
+    "checkpoint": "novaAnimeXL_ilV190.safetensors",
+    "workflow": "workflows/katala_prompt_nova_sdxl_api.json",
+    "preset": "production-sheet",
+    "width": 1344,
+    "height": 896,
+    "steps": 24,
+    "cfg": 6.2,
+    "notes": "アニメ寄りの雰囲気出し。背景に引っ張られやすい。"
+  },
+  "sdxl-realtoon-realvis": {
+    "kind": "sdxl_checkpoint",
+    "checkpoint": "RealVisXL_V5.0_fp16.safetensors",
+    "workflow": "workflows/katala_prompt_nova_sdxl_api.json",
+    "preset": "realtoon-prototype",
+    "width": 1344,
+    "height": 896,
+    "steps": 24,
+    "cfg": 5.5,
+    "notes": "リアルトゥーン/原型レンダー確認向き。"
+  },
+  "sdxl-experimental-ltxv": {
+    "kind": "checkpoint_experimental",
+    "checkpoint": "ltxv-13b-0.9.8-distilled-fp8.safetensors",
+    "workflow": null,
+    "preset": "general",
+    "notes": "ComfyUIではcheckpoint候補に出るが、動画/別アーキテクチャの可能性があるため未検証。"
+  },
+  "z-image-turbo-nvfp4": {
+    "kind": "z_image_turbo",
+    "unet": "z_image_turbo_nvfp4.safetensors",
+    "text_encoder": "qwen_3_4b.safetensors",
+    "vae": "ae.safetensors",
+    "clip_type": "lumina2",
+    "workflow": "workflows/katala_zimage_turbo_api.json",
+    "preset": "production-sheet",
+    "width": 1024,
+    "height": 1024,
+    "steps": 8,
+    "cfg": 1.0,
+    "notes": "Z-Image Turbo軽量候補。qwen_3_06b_baseは条件次元不一致で失敗、qwen_3_4bで実行確認。"
+  },
+  "z-image-turbo-bf16": {
+    "kind": "z_image_turbo",
+    "unet": "z_image_turbo_bf16.safetensors",
+    "text_encoder": "qwen_3_4b.safetensors",
+    "vae": "ae.safetensors",
+    "clip_type": "lumina2",
+    "workflow": "workflows/katala_zimage_turbo_api.json",
+    "preset": "production-sheet",
+    "width": 1024,
+    "height": 1024,
+    "steps": 8,
+    "cfg": 1.0,
+    "notes": "Z-Image Turbo高品質候補。公式ブループリント相当構成で検証。"
+  }
+}
