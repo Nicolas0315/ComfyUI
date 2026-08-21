@@ -24,3 +24,6 @@ web_custom_versions/
 filtered-openapi.yaml
 uv.lock
 .comfy_environment
+
+# Local recovery copies of the worker launcher.
+start-comfyui.ps1.bak-*
