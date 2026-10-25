@@ -286,6 +286,19 @@ def exists_annotated_filepath(name) -> bool:
     return os.path.exists(filepath)
 
 
+def get_path_within_directory(path: str, directory: str) -> str:
+    """Resolve a path inside a directory, including any existing symlinks.
+
+    The directory itself may be a configured symlink. Check the complete path
+    before using it so an existing file symlink cannot escape the directory.
+    """
+    directory = os.path.realpath(directory)
+    filepath = os.path.realpath(os.path.join(directory, path))
+    if os.path.commonpath((directory, filepath)) != directory:
+        raise ValueError("Accessing a path outside the selected directory is not allowed.")
+    return filepath
+
+
 def add_model_folder_path(folder_name: str, full_folder_path: str, is_default: bool = False) -> None:
     global folder_names_and_paths
     folder_name = map_legacy(folder_name)
@@ -433,7 +446,7 @@ def get_filename_list(folder_name: str) -> list[str]:
     cache_helper.set(folder_name, out)
     return list(out[0])
 
-def get_save_image_path(filename_prefix: str, output_dir: str, image_width=0, image_height=0) -> tuple[str, str, int, str, str]:
+def get_save_image_path(filename_prefix: str, output_dir: str, image_width=0, image_height=0, *, check_symlinks: bool = False) -> tuple[str, str, int, str, str]:
     def map_filename(filename: str) -> tuple[int, str]:
         prefix_len = len(os.path.basename(filename_prefix))
         prefix = filename[:prefix_len + 1]
@@ -464,6 +477,9 @@ def get_save_image_path(filename_prefix: str, output_dir: str, image_width=0, im
     filename = os.path.basename(os.path.normpath(filename_prefix))
 
     full_output_folder = os.path.join(output_dir, subfolder)
+
+    if check_symlinks:
+        full_output_folder = get_path_within_directory(full_output_folder, output_dir)
 
     if os.path.commonpath((output_dir, os.path.abspath(full_output_folder))) != output_dir:
         err = "**** ERROR: Saving image outside the output folder is not allowed." + \

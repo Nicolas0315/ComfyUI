@@ -168,6 +168,9 @@ def save_images_to_folder(image_list, output_dir, prefix="image", overwrite=True
     Returns:
         List of saved filenames
     """
+    output_dir = folder_paths.get_path_within_directory(output_dir, folder_paths.get_output_directory())
+    if overwrite:
+        folder_paths.get_path_within_directory(os.path.dirname(prefix), output_dir)
     os.makedirs(output_dir, exist_ok=True)
     saved_files = []
 
@@ -200,9 +203,9 @@ def save_images_to_folder(image_list, output_dir, prefix="image", overwrite=True
         if overwrite:
             filename = f"{prefix}_{idx:05d}.png"
         else:
-            _, _, counter, _, resolved_prefix = folder_paths.get_save_image_path(prefix, output_dir)
+            _, _, counter, _, resolved_prefix = folder_paths.get_save_image_path(prefix, output_dir, check_symlinks=True)
             filename = f"{resolved_prefix}_{counter:05}_{idx:05d}.png"
-        filepath = os.path.join(output_dir, filename)
+        filepath = folder_paths.get_path_within_directory(filename, output_dir)
         img.save(filepath)
         saved_files.append(filename)
 
@@ -313,7 +316,7 @@ class SaveImageTextDataSetToFolderNode(io.ComfyNode):
         if texts:
             for idx, (filename, caption) in enumerate(zip(saved_files, texts)):
                 caption_filename = filename.replace(".png", ".txt")
-                caption_path = os.path.join(output_dir, caption_filename)
+                caption_path = folder_paths.get_path_within_directory(caption_filename, output_dir)
                 with open(caption_path, "w", encoding="utf-8") as f:
                     f.write(caption)
 
@@ -1474,7 +1477,7 @@ class SaveTrainingDataset(io.ComfyNode):
             )
 
         # Create output directory
-        output_dir = os.path.join(folder_paths.get_output_directory(), folder_name)
+        output_dir = folder_paths.get_path_within_directory(folder_name, folder_paths.get_output_directory())
         os.makedirs(output_dir, exist_ok=True)
 
         # Prepare data pairs
@@ -1498,7 +1501,7 @@ class SaveTrainingDataset(io.ComfyNode):
 
             # Save shard
             shard_filename = f"shard_{shard_idx:04d}.pkl"
-            shard_path = os.path.join(output_dir, shard_filename)
+            shard_path = folder_paths.get_path_within_directory(shard_filename, output_dir)
 
             with open(shard_path, "wb") as f:
                 torch.save(shard_data, f)
@@ -1513,7 +1516,7 @@ class SaveTrainingDataset(io.ComfyNode):
             "num_shards": num_shards,
             "shard_size": shard_size,
         }
-        metadata_path = os.path.join(output_dir, "metadata.json")
+        metadata_path = folder_paths.get_path_within_directory("metadata.json", output_dir)
         with open(metadata_path, "w") as f:
             json.dump(metadata, f, indent=2)
 

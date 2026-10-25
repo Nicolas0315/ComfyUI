@@ -12,6 +12,17 @@ from pathlib import Path
 def normalize_path(path):
     return path.replace('\\', '/')
 
+
+def get_model_path(model_file: str) -> str:
+    name, directory = folder_paths.annotated_filepath(model_file)
+    if directory is None:
+        directory = folder_paths.get_input_directory()
+    path = folder_paths.get_path_within_directory(name, directory)
+    if not os.path.isfile(path):
+        raise ValueError(f"Invalid 3D model file: {model_file}")
+    return path
+
+
 class Load3D(IO.ComfyNode):
     @classmethod
     def define_schema(cls):
@@ -55,7 +66,9 @@ class Load3D(IO.ComfyNode):
     def validate_inputs(cls, model_file, **kwargs) -> bool | str:
         if not model_file or model_file == "none":
             return True
-        if not folder_paths.exists_annotated_filepath(model_file):
+        try:
+            get_model_path(model_file)
+        except (OSError, ValueError):
             return f"Invalid 3D model file: {model_file}"
         return True
 
@@ -80,7 +93,8 @@ class Load3D(IO.ComfyNode):
         file_3d = None
         mesh_path = ""
         if model_file and model_file != "none":
-            file_3d = Types.File3D(folder_paths.get_annotated_filepath(model_file))
+            model_name, _ = folder_paths.annotated_filepath(model_file)
+            file_3d = Types.File3D(get_model_path(model_file), file_format=Path(model_name).suffix.lstrip(".").lower())
             mesh_path = model_file
         model_3d_info = image.get('model_3d_info', [])
         return IO.NodeOutput(output_image, output_mask, mesh_path, normal_image, image['camera_info'], video, file_3d, model_3d_info)
@@ -366,7 +380,9 @@ class Load3DAdvanced(IO.ComfyNode):
     def validate_inputs(cls, model_file, **kwargs) -> bool | str:
         if not model_file or model_file == "none":
             return True
-        if not folder_paths.exists_annotated_filepath(model_file):
+        try:
+            get_model_path(model_file)
+        except (OSError, ValueError):
             return f"Invalid 3D model file: {model_file}"
         return True
 
@@ -374,7 +390,8 @@ class Load3DAdvanced(IO.ComfyNode):
     def execute(cls, model_file, viewport_state, width: int, height: int, **kwargs) -> IO.NodeOutput:
         file_3d = None
         if model_file and model_file != "none":
-            file_3d = Types.File3D(folder_paths.get_annotated_filepath(model_file))
+            model_name, _ = folder_paths.annotated_filepath(model_file)
+            file_3d = Types.File3D(get_model_path(model_file), file_format=Path(model_name).suffix.lstrip(".").lower())
         model_3d_info = viewport_state.get('model_3d_info', [])
         return IO.NodeOutput(file_3d, model_3d_info, viewport_state['camera_info'], width, height)
 
